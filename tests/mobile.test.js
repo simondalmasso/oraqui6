@@ -20,5 +20,5 @@ test("controles táctiles con dimensiones mínimas y mascota visible",()=>{
  assert.doesNotMatch(css,/.mascot-shell{display:none/);
 });
 test("no existe importación externa de fuentes ni rastreadores",()=>{
- assert.doesNotMatch(css,/@import|https?:///);
+ assert.ok(!css.includes("@import"));assert.ok(!css.includes("https://")&&!css.includes("http://"));
 });
