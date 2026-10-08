@@ -1,6 +1,6 @@
-# ORAQUI6 · El azar tiene historia
+# ORAQUI6 · Números sugeridos para Quini 6
 
-Observatorio de resultados del **Quini 6**, con interfaz de terminal financiera inspirada en [Smart Money Shell](https://smartmoney.sh/), mascota de Quini 6, radar de frecuencias, archivo documental de sorteos y generador recreativo de combinaciones.
+Terminal estadística del **Quini 6**, inspirada en [Smart Money Shell](https://smartmoney.sh/), con dos combinaciones sugeridas visibles en la portada: **Quini 6 normal** y **Siempre Sale**. Incluye mascota con tratamiento monocromático, resultados, radar, archivo y control de jugadas.
 
 **Sitio objetivo:** https://oraqui6.simondalmasso44.workers.dev/  
 **Infraestructura:** Cloudflare Worker + Assets estáticos, sin base de datos ni API de pago.
@@ -10,7 +10,7 @@ Observatorio de resultados del **Quini 6**, con interfaz de terminal financiera 
 - **Último sorteo:** Tradicional, Segunda, Revancha y Siempre Sale, con fecha y fuente.
 - **Archivo documental:** 394 registros externos entre 2023 y octubre de 2026 con fecha y cuatro modalidades. No se inventan IDs faltantes.
 - **Radar 46:** recuentos históricos independientes desde 2008, con fecha de corte explícita.
-- **Oráculo:** 6 números únicos con ponderación equilibrada, frecuentes, rezagados o azar uniforme.
+- **Oráculo en portada:** dos sugerencias separadas de 6 números únicos. La primera utiliza Tradicional / Segunda / Revancha; la segunda utiliza Siempre Sale. Ambos muestran criterios equilibrado, frecuentes, rezagados o azar uniforme.\n- **Siempre Sale:** modalidad oficial que adjudica premios descendiendo el número de aciertos hasta encontrar ganadores; no es un sorteo independiente inventado.
 - **Prueba retrospectiva:** walk-forward con ventana anterior de 60 sorteos, 120 pruebas como máximo y referencia uniforme de 36/46 ≈ 0,7826 aciertos por extracción.
 - **Control de jugadas:** comparación retrospectiva, colección local y descarga CSV.
 
@@ -38,7 +38,7 @@ wrangler.jsonc           → única configuración de Cloudflare
 package.json
 \`\`\`
 
-## Ejecutar
+## Dirección visual\n\nPrimera pantalla = generador listo para usar; sin hero introductorio. Interfaz compacta tipo terminal (fondo negro, retícula, verde lima y cifras monoespaciadas). La mascota se adapta mediante filtros CSS sin alterar el recurso original. Sin promesas de IA ni de éxito estadístico.\n\n## Ejecutar
 
 Node 22+:
 

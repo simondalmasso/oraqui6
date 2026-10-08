@@ -5,7 +5,7 @@ historicalCounts:[],sourceStatus:{draws:"snapshot",stats:"snapshot"},snapshotDat
 };
 const NAMES={tradicional:"TRADICIONAL",segunda:"LA SEGUNDA",revancha:"REVANCHA",siempre:"SIEMPRE SALE"};
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-let dataset=fallback, strategy="equilibrado", mode="todas", serial=0, pick=[],selected=new Set(),toastTimer;
+let dataset=fallback, strategy="equilibrado", mode="tradicional", serial=0, pick=[],siemprePick=[],selected=new Set(),toastTimer;
 function balls(nums, hits=[]) {return nums.map(n=>'<span class="ball '+(hits.includes(n)?"hit":"")+'">'+fmt(n)+'</span>').join("");}
 function toast(message){const t=$("#toast");t.textContent=message;t.style.display="block";clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.style.display="none",2400);}
 function storage(){try{const x=JSON.parse(localStorage.getItem("oraqui6-saved")||"[]");return Array.isArray(x)?x.filter(a=>Array.isArray(a.nums)&&a.nums.length===6):[]}catch{return []}}
@@ -40,13 +40,23 @@ function renderArchive(){
     ["DIFERENCIA",((bt.observedAverage-bt.uniformExpectation)>=0?"+":"")+(bt.observedAverage-bt.uniformExpectation).toFixed(3)]
   ].map(([label,value])=>'<div><small>'+label+'</small><strong>'+value+'</strong></div>').join(""):'<div><small>SIN MUESTRA SUFICIENTE</small></div>';
 }
-function generate(){
+function suggestion(kind){
   const counts=dataset.historicalCounts?.length===46?dataset.historicalCounts:[];
-  pick=sampleSix(weights({history:(dataset.archive?.length?dataset.archive.slice(0,100):dataset.history),counts,mode,strategy}),secureRandom);
-  $("#pick").innerHTML=balls(pick);serial++;
+  const history=dataset.archive?.length?dataset.archive.slice(0,100):dataset.history;
+  return sampleSix(weights({history,counts,mode:kind==="siempre"?"siempre":mode,strategy}),secureRandom);
+}
+function generateSiempre(){
+  siemprePick=suggestion("siempre");
+  $("#pickSiempre").innerHTML=balls(siemprePick);
+  $("#explainSiempre").textContent="Siempre Sale · "+Math.min(dataset.archive?.length||dataset.history.length,100)+" sorteos analizados · "+strategy+".";
+}
+function generate(){
+  pick=suggestion("normal");serial++;
   $("#serial").textContent="#"+String(serial).padStart(3,"0");
-  const meaning={equilibrado:"Mezcla suavizada de frecuencias históricas y recientes",frecuentes:"Peso mayor a bolillas más frecuentes en los datos",rezagados:"Peso mayor a bolillas menos frecuentes en los datos",aleatorio:"Todas las bolillas con el mismo peso"}[strategy];
-  $("#explain").textContent=meaning+". Muestra reciente validada: "+(dataset.archive?.length?Math.min(100,dataset.archive.length):dataset.history.length)+" concursos. No constituye un pronóstico estadísticamente validado.";
+  $("#pick").innerHTML=balls(pick);
+  const label={equilibrado:"Frecuencias ponderadas",frecuentes:"Salidas más frecuentes",rezagados:"Salidas menos frecuentes",aleatorio:"Azar sin ponderación"}[strategy];
+  $("#explain").textContent=label+" · "+mode+" · "+Math.min(dataset.archive?.length||dataset.history.length,100)+" sorteos.";
+  generateSiempre();
 }
 function selectionUI(){
   $("#selectedCount").textContent=selected.size+"/6";
@@ -94,9 +104,12 @@ $$("[data-mode]").forEach(b=>b.addEventListener("click",()=>{
   generate();
 }));
 $("#refresh").addEventListener("click",load);
-$("#generate").addEventListener("click",generate);
+$("#generate").addEventListener("click",()=>{pick=suggestion("normal");serial++;$("#serial").textContent="#"+String(serial).padStart(3,"0");$("#pick").innerHTML=balls(pick);toast("Nueva jugada normal");});
+$("#generateSiempre").addEventListener("click",()=>{generateSiempre();toast("Nueva jugada Siempre Sale");});
+$("#copySiempre").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(siemprePick.map(fmt).join(" - "));toast("Siempre Sale copiado")}catch{toast("No se pudo copiar")}});
+$("#saveSiempre").addEventListener("click",()=>{const s=storage();s.push({nums:siemprePick.slice(),strategy,mode:"siempre",createdAt:new Date().toISOString()});store(s);savedUI();toast("Siempre Sale guardado")});
 $("#copy").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(pick.map(fmt).join(" - "));toast("Combinación copiada")}catch{toast("No se pudo copiar automáticamente")}});
-$("#save").addEventListener("click",()=>{const s=storage();s.push({nums:pick.slice(),strategy,createdAt:new Date().toISOString()});store(s);savedUI();toast("Combinación guardada")});
+$("#save").addEventListener("click",()=>{const s=storage();s.push({nums:pick.slice(),strategy,mode,createdAt:new Date().toISOString()});store(s);savedUI();toast("Combinación guardada")});
 $("#chooser").addEventListener("click",e=>{const b=e.target.closest("[data-num]");if(!b)return;const n=Number(b.dataset.num);if(selected.has(n))selected.delete(n);else if(selected.size<6)selected.add(n);else{toast("Elegí solamente seis números");return;}selectionUI();$("#comparison").textContent=""});
 $("#check").addEventListener("click",compare);
 $("#clear").addEventListener("click",()=>{selected.clear();selectionUI();$("#comparison").textContent=""});
