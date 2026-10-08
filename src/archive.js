@@ -1,4 +1,4 @@
-import historyFile from "../public/data/history.json";
+import historyFile from "../public/data/history.json" with { type: "json" };
 import { MODES, validNumbers } from "./math.js";
 
 // Archivo externo independiente, NO certificado como extracto oficial.
