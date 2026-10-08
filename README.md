@@ -1,9 +1,9 @@
 # ORAQUI6 · Números sugeridos para Quini 6
 
-Terminal estadística del **Quini 6**, inspirada en [Smart Money Shell](https://smartmoney.sh/), con dos combinaciones sugeridas visibles en la portada: **Quini 6 normal** y **Siempre Sale**. Incluye mascota con tratamiento monocromático, resultados, radar, archivo y control de jugadas.
+Terminal estadística del **Quini 6**, inspirada en [Smart Money Shell](https://smartmoney.sh/), con dos combinaciones sugeridas visibles en la portada: **Quini 6 normal** y **Siempre Sale**. Incluye una mascota SVG topológica, resultados, radar, archivo y control de jugadas.
 
 **Producción:** https://oraqui6.simondalmasso44.workers.dev/  
-**Infraestructura:** Cloudflare Worker + Assets estáticos, con Cloudflare KV y dos sincronizaciones programadas por semana; no requiere una API de pago.
+**Infraestructura:** Cloudflare Worker + Assets estáticos, con Cloudflare KV y sincronización oportunista después de los sorteos; sin cron adicional ni API de pago.
 
 ## Funcionalidades
 
@@ -27,16 +27,20 @@ public/
   style.css              → UI
   app.js                 → interfaz e interacciones
   math-browser.js        → motor matemático en navegador
-  mascota.webp           → mascota del Quini 6
-  data/history.json      → archivo externo documentado (394 sorteos)
+  mascota-topologica.svg → mascota vectorial en estilo terminal
+  mascota.webp           → recurso original de referencia conservado
+  data/history.json      → archivo parcial de 1.668 sorteos (2010—2026)
 src/
   archive.js             → validación y normalización del histórico
   math.js                → muestreo, frecuencias, backtest
   parser.js              → extracción defensiva de fuentes
-  worker.js              → API /api/data y /api/health
-tests/math.test.js       → regresiones
+  worker.js              → API /api/data, /api/health y KV
+  year-source.js         → parser de fuente anual
+  sync-window.js         → ventanas de consulta tras los sorteos
+tests/*.test.js         → regresiones, HTML y mobile (24 pruebas)
 wrangler.jsonc           → única configuración de Cloudflare
-package.json
+scripts/import-history.mjs  → importación histórica manual
+package.json, package-lock.json
 ```
 
 ## Sincronización y costos
@@ -54,7 +58,7 @@ Primera pantalla = dos combinaciones y controles de generación, sin hero introd
 Node 22+:
 
 ```bash
-npm install
+npm ci
 npm run typecheck
 npm run check
 npm run dev
@@ -82,4 +86,12 @@ No afiliado a la Lotería de Santa Fe. Jugar compulsivamente es perjudicial para
 
 ## Responsive / terminal
 
-Diseño Mobile First a partir de 320 px: barra inferior con cinco destinos, selector de estrategias 2×2 en celulares angostos, números de seis columnas sin desbordes horizontales, controles táctiles de al menos 44 px, tabla de resultados reorganizada y mascota topológica compacta visible también en móvil. Modo escritorio: encabezado FEED, bandas de datos, filas densas, tipografía monoespaciada y separación cromática por modalidad. No se descargan fuentes externas ni recursos de interfaz de terceros. Los datos siguen usando el mecanismo de KV de bajo consumo ya desplegado.
+Diseño Mobile First a partir de 320 px: barra inferior con cinco destinos, selector de estrategias 2×2 en celulares angostos, números de seis columnas de ancho adaptable, controles táctiles de al menos 44 px, tabla de resultados reorganizada y mascota topológica compacta visible también en móvil. Modo escritorio: encabezado FEED, bandas de datos, filas densas, tipografía monoespaciada y separación cromática por modalidad. No se descargan fuentes externas ni recursos de interfaz de terceros. Los datos siguen usando el mecanismo de KV de bajo consumo ya desplegado.
+
+## Estado verificado
+
+- Portada con ambas jugadas y barra inferior responsive comprobada en el HTML/CSS desplegado.
+- Pruebas de código, parsers y controles: **24/24 PASS**.
+- `GET /api/health`: versión `0.4.1`.
+- Archivo: **1.668 registros, 2010-07-11 a 2026-10-07** en el corte de implementación. No certifica completitud desde 1988.
+- La validación responsive automatizada es estática; no reemplaza una inspección visual de dispositivos reales.
