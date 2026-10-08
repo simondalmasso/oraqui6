@@ -10,7 +10,7 @@ export function validNumbers(nums) {
     new Set(nums).size === 6;
 }
 export function validDraw(d) {
-  if (!d || !Number.isSafeInteger(d.id) || d.id < 1 ||
+  if (!d || (d.id != null && (!Number.isSafeInteger(d.id) || d.id < 1)) ||
       !/^\d{4}-\d{2}-\d{2}$/.test(d.date) || !Number.isFinite(Date.parse(d.date+"T12:00:00Z"))) return false;
   return MODES.every(key => validNumbers(d[key]));
 }
@@ -57,3 +57,34 @@ export function secureRandom() {
   return bytes[0] / 4294967296;
 }
 export const fmt = n => String(n).padStart(2,"0");
+
+
+/**
+ * Prueba retrospectiva sin fuga temporal: pesos construidos SOLO con sorteos anteriores.
+ * No utiliza los recuentos históricos agregados (que contendrían información futura).
+ * Las estrategias no tienen garantía de superar al azar uniforme.
+ */
+export function walkForward(draws, {mode="tradicional", window=60, maxTests=100} = {}) {
+  if (!MODES.includes(mode)) throw Error("Modalidad inválida");
+  const sorted=draws.filter(validDraw).slice().sort((a,b)=>a.date.localeCompare(b.date));
+  const w=Math.max(20,Math.min(150,Math.floor(window)));
+  let matches=0, tests=0;
+  for(let i=w;i<sorted.length && tests<maxTests;i++) {
+    const previous=sorted.slice(i-w,i);
+    const freq=frequencies(previous,mode);
+    const ranked=freq.map((count,n)=>({count,n})).sort((a,b)=>b.count-a.count || a.n-b.n);
+    const selection=new Set(ranked.slice(0,6).map(x=>x.n));
+    matches+=sorted[i][mode].filter(n=>selection.has(n)).length;
+    tests++;
+  }
+  const expected=6*6/46;
+  return {
+    methodology:"rolling-top6-frequencies",
+    mode, window:w, tests,
+    observedAverage:tests?Number((matches/tests).toFixed(4)):null,
+    uniformExpectation:Number(expected.toFixed(4)),
+    observedTotal:matches,
+    expectedTotal:Number((tests*expected).toFixed(4)),
+    note:"Backtest descriptivo, sin optimización de parámetros ni significación predictiva; no avala apuestas."
+  };
+}

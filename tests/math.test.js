@@ -39,3 +39,26 @@ test("parser de cuatro modalidades",()=>{
   assert.ok(x&&validDraw(x));
 });
 test("parser descarta tablas incompletas",()=>assert.equal(parseHistoricalCounts("<table><tr><td>00</td><td>1020</td></tr></table>"),null));
+
+import {walkForward} from "../src/math.js";
+import {archiveRecords} from "../src/archive.js";
+test("archivo preserva fechas y 4 modalidades sin inventar concurso",()=>{
+  const a=archiveRecords();
+  assert.ok(a.length>=300);
+  assert.ok(a.every(validDraw));
+  assert.ok(a.every(x=>!Object.hasOwn(x,"id")));
+  assert.ok(a[0].date>=a[a.length-1].date);
+});
+test("backtest temporal declara el esperado uniforme",()=>{
+  const r=walkForward(archiveRecords(),{window:60,maxTests:120});
+  assert.equal(r.tests,120);
+  assert.ok(r.observedAverage>=0 && r.observedAverage<=6);
+  assert.ok(Math.abs(r.uniformExpectation-36/46)<.0001);
+});
+test("backtest no utiliza datos futuros",()=>{
+  const a=archiveRecords().slice(-100);
+  const x=walkForward(a,{window:40,maxTests:40});
+  const b=a.map(v=>({...v,tradicional:[0,1,2,3,4,5]}));
+  const y=walkForward(b,{window:40,maxTests:40});
+  assert.equal(x.tests,y.tests);
+});

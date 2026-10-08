@@ -1,14 +1,14 @@
 {
   "name": "oraqui6",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
-  "description": "Observatorio estadístico del Quini 6 en Cloudflare Workers",
+  "description": "ORAQUI6 — Quini 6 data observatory, historical analytics and transparent picks on Cloudflare Workers",
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "check": "node --test tests/*.test.js",
-    "typecheck": "node --check src/worker.js && node --check src/math.js && node --check src/parser.js && node --check public/app.js"
+    "typecheck": "node --check src/worker.js && node --check src/math.js && node --check src/archive.js && node --check src/parser.js && node --check public/app.js && node --check public/math-browser.js"
   },
   "devDependencies": {
     "wrangler": "^4.43.0"

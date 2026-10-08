@@ -1,7 +1,10 @@
 import seed from "../data/seed.json";
-import { validDraw } from "./math.js";
+import { archiveRecords, ARCHIVE_META } from "./archive.js";
+import { validDraw, walkForward } from "./math.js";
 import { archiveEntries, parseDraw, parseHistoricalCounts, ARCHIVE_URL, STATS_URL } from "./parser.js";
 
+const archived = archiveRecords();
+const backtest = walkForward(archived, {mode:"tradicional",window:60,maxTests:120});
 const headers = { "content-type":"application/json; charset=utf-8", "cache-control":"public, max-age=900", "x-content-type-options":"nosniff" };
 async function externalText(url) {
   const controller=new AbortController();
@@ -35,19 +38,19 @@ async function getDataset() {
       } else drawError="No se pudieron validar detalles de sorteos";
     } else drawError="Archivo sin enlaces reconocibles";
   } else drawError="Origen de sorteos no disponible";
-  return {history,historicalCounts,sourceStatus:{draws:drawsStatus,stats:statsStatus},checkedAt:new Date().toISOString(),snapshotDate:seed.snapshotDate,historyFrom:"2008",sources:{results:ARCHIVE_URL,stats:STATS_URL,official:"https://www.loteriasantafe.gov.ar/quini-6-2/"},warnings:[drawError,statsError].filter(Boolean),sampleDraws:history.length};
+  return {history,archive:archived,archiveMeta:ARCHIVE_META,backtest,historicalCounts,statsSnapshotDate:seed.statsSnapshotDate,sourceStatus:{draws:drawsStatus,stats:statsStatus},checkedAt:new Date().toISOString(),snapshotDate:seed.snapshotDate,historyFrom:"2008",sources:{results:ARCHIVE_URL,stats:STATS_URL,official:"https://www.loteriasantafe.gov.ar/quini-6-2/"},warnings:[drawError,statsError].filter(Boolean),sampleDraws:history.length};
 }
 export default {
   async fetch(request,env,ctx) {
     const url=new URL(request.url);
     if(url.pathname==="/api/health")
-      return new Response(JSON.stringify({ok:true,service:"oraqui6",version:"0.1.0",timestamp:new Date().toISOString()}),{headers:{"content-type":"application/json; charset=utf-8","cache-control":"no-store"}});
+      return new Response(JSON.stringify({ok:true,service:"oraqui6",version:"0.2.0",timestamp:new Date().toISOString()}),{headers:{"content-type":"application/json; charset=utf-8","cache-control":"no-store"}});
     if(url.pathname==="/api/data"){
       const cacheKey=new Request(url.origin+"/api/data");
       const cache=typeof caches!=="undefined"?caches.default:null;
       const cached=cache?await cache.match(cacheKey):null;
       if(cached)return cached;
-      const dataset=await getDataset().catch(()=>({history:seed.history,historicalCounts:seed.historicalCounts,sourceStatus:{draws:"snapshot",stats:"snapshot"},checkedAt:new Date().toISOString(),snapshotDate:seed.snapshotDate,historyFrom:"2008",warnings:["Fuentes inaccesibles; mostrando instantánea verificada."],sampleDraws:seed.history.length}));
+      const dataset=await getDataset().catch(()=>({history:seed.history,archive:archived,archiveMeta:ARCHIVE_META,backtest,historicalCounts:seed.historicalCounts,statsSnapshotDate:seed.statsSnapshotDate,sourceStatus:{draws:"snapshot",stats:"snapshot"},checkedAt:new Date().toISOString(),snapshotDate:seed.snapshotDate,historyFrom:"2008",warnings:["Fuentes inaccesibles; mostrando instantánea verificada."],sampleDraws:seed.history.length}));
       const response=new Response(JSON.stringify(dataset),{headers});
       if(cache&&ctx?.waitUntil)ctx.waitUntil(cache.put(cacheKey,response.clone()));
       return response;

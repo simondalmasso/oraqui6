@@ -1,6 +1,6 @@
 import {MODES, STRATEGIES, weights, sampleSix, secureRandom, validDraw, fmt} from "/math-browser.js";
 const fallback={
-history:[{id:3415,date:"2026-10-07",tradicional:[3,10,12,14,36,38],segunda:[5,12,13,23,24,35],revancha:[6,7,8,39,40,41],siempre:[4,7,19,32,34,42]}],
+archive:[],archiveMeta:null,backtest:null,history:[{id:3415,date:"2026-10-07",tradicional:[3,10,12,14,36,38],segunda:[5,12,13,23,24,35],revancha:[6,7,8,39,40,41],siempre:[4,7,19,32,34,42]}],
 historicalCounts:[],sourceStatus:{draws:"snapshot",stats:"snapshot"},snapshotDate:"2026-10-08",sampleDraws:1,warnings:["No se pudo contactar con el servidor"]
 };
 const NAMES={tradicional:"TRADICIONAL",segunda:"LA SEGUNDA",revancha:"REVANCHA",siempre:"SIEMPRE SALE"};
@@ -16,6 +16,7 @@ function renderResults(){
   const live=dataset.sourceStatus?.draws==="live";
   $("#status").textContent=live?"● FUENTE ONLINE":"● INSTANTÁNEA";
   $("#sourceLine").textContent="CONCURSO "+d.id+" · "+d.date+" · "+(live?"ARCHIVO CONSULTADO":"ÚLTIMA COPIA VERIFICADA");
+  $("#metricArchive").textContent=(dataset.archive?.length||0).toLocaleString("es-AR");
   $("#results").innerHTML=MODES.map(k=>'<article class="result"><h3>'+NAMES[k]+'</h3><div class="ballline">'+balls(d[k])+'</div><small>CONCURSO #'+d.id+' · SEIS BOLILLAS</small></article>').join("");
 }
 function renderRadar(){
@@ -27,13 +28,25 @@ function renderRadar(){
   const top=a.map((count,n)=>({count,n})).sort((x,y)=>y.count-x.count).slice(0,8);
   $("#leaderboard").innerHTML=top.map((x,i)=>'<div class="ranking"><span>'+(i+1)+'</span><b>'+fmt(x.n)+'</b><i><b style="width:'+Math.round(100*x.count/max)+'%"></b></i><span>'+x.count+'</span></div>').join("");
 }
+function renderArchive(){
+  const entries=dataset.archive||[], bt=dataset.backtest;
+  $("#archiveStatus").textContent=entries.length+" SORTEOS · "+(dataset.archiveMeta?.retrievedAt?"ARCHIVO EXTERNO":"SIN ARCHIVO");
+  $("#archiveProvenance").textContent="Fuente: "+(dataset.archiveMeta?.source||"sin fuente")+" · Capturado: "+(dataset.archiveMeta?.retrievedAt||"sin fecha")+" · Se muestran los últimos 10, sin inventar números de concurso.";
+  $("#archiveRows").innerHTML=entries.length?entries.slice(0,10).map(d=>'<div class="archive-row"><b>'+d.date+'</b><span>'+d.tradicional.map(fmt).join(" · ")+'</span></div>').join(""):'<p class="muted">No hay archivo verificado.</p>';
+  $("#backtestBox").innerHTML=bt&&bt.tests?[
+    ["EXTRACCIONES PROBADAS",String(bt.tests)],
+    ["ACERTADOS POR JUGADA",bt.observedAverage.toFixed(3)],
+    ["ESPERADO AZAR",bt.uniformExpectation.toFixed(3)],
+    ["DIFERENCIA",((bt.observedAverage-bt.uniformExpectation)>=0?"+":"")+(bt.observedAverage-bt.uniformExpectation).toFixed(3)]
+  ].map(([label,value])=>'<div><small>'+label+'</small><strong>'+value+'</strong></div>').join(""):'<div><small>SIN MUESTRA SUFICIENTE</small></div>';
+}
 function generate(){
   const counts=dataset.historicalCounts?.length===46?dataset.historicalCounts:[];
-  pick=sampleSix(weights({history:dataset.history,counts,mode,strategy}),secureRandom);
+  pick=sampleSix(weights({history:(dataset.archive?.length?dataset.archive.slice(0,100):dataset.history),counts,mode,strategy}),secureRandom);
   $("#pick").innerHTML=balls(pick);serial++;
   $("#serial").textContent="#"+String(serial).padStart(3,"0");
   const meaning={equilibrado:"Mezcla suavizada de frecuencias históricas y recientes",frecuentes:"Peso mayor a bolillas más frecuentes en los datos",rezagados:"Peso mayor a bolillas menos frecuentes en los datos",aleatorio:"Todas las bolillas con el mismo peso"}[strategy];
-  $("#explain").textContent=meaning+". Muestra reciente validada: "+dataset.history.length+" concursos. No constituye un pronóstico estadísticamente validado.";
+  $("#explain").textContent=meaning+". Muestra reciente validada: "+(dataset.archive?.length?Math.min(100,dataset.archive.length):dataset.history.length)+" concursos. No constituye un pronóstico estadísticamente validado.";
 }
 function selectionUI(){
   $("#selectedCount").textContent=selected.size+"/6";
@@ -61,7 +74,7 @@ async function load(){
     if(!Array.isArray(next.history)||!validDraw(next.history[0]))throw Error("Datos inválidos");
     dataset=next;
   } catch (err){console.warn("ORAQUI6 source unavailable:",err.message);dataset=fallback}
-  renderResults();renderRadar();generate();
+  renderResults();renderRadar();renderArchive();generate();
   const st=dataset.sourceStatus||{};
   $("#sourceHealth").textContent="Sorteos: "+(st.draws==="live"?"online":"instantánea")+
     " · Frecuencias: "+(st.stats==="live"?"online":"instantánea")+
