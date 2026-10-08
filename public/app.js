@@ -12,25 +12,25 @@ function storage(){try{const x=JSON.parse(localStorage.getItem("oraqui6-saved")|
 function store(x){try{localStorage.setItem("oraqui6-saved",JSON.stringify(x.slice(-30)))}catch{toast("El navegador impide guardar datos")}}
 function renderResults(){
   const d=dataset.history?.[0];if(!validDraw(d))return;
-  $("#drawId").textContent="#"+d.id;$("#drawDate").textContent=d.date;
-  const live=dataset.sourceStatus?.draws==="live";
-  $("#status").textContent=live?"● FUENTE ONLINE":"● INSTANTÁNEA";
-  $("#sourceLine").textContent="CONCURSO "+d.id+" · "+d.date+" · "+(live?"ARCHIVO CONSULTADO":"ÚLTIMA COPIA VERIFICADA");
+  $("#drawId").textContent=d.id!=null?"#"+d.id:"—";$("#drawDate").textContent=d.date;
+  const live=["live","cached-source"].includes(dataset.sourceStatus?.draws);
+  $("#status").textContent=live?"● RESULTADOS ACTUALIZADOS":"● ARCHIVO LOCAL";
+  $("#sourceLine").textContent=(d.id!=null?"CONCURSO "+d.id:"SORTEO")+" · "+d.date+" · "+(live?"DATOS PUBLICADOS":"COPIA GUARDADA");
   $("#metricArchive").textContent=(dataset.archive?.length||0).toLocaleString("es-AR");
-  $("#results").innerHTML=MODES.map(k=>'<article class="result"><h3>'+NAMES[k]+'</h3><div class="ballline">'+balls(d[k])+'</div><small>CONCURSO #'+d.id+' · SEIS BOLILLAS</small></article>').join("");
+  $("#results").innerHTML=MODES.map(k=>'<article class="result"><h3>'+NAMES[k]+'</h3><div class="ballline">'+balls(d[k])+'</div><small>'+(d.id!=null?'#'+d.id+' · ':'')+'SEIS NÚMEROS</small></article>').join("");
 }
 function renderRadar(){
   const a=dataset.historicalCounts||[];
   if(a.length!==46)return;
   const min=Math.min(...a),max=Math.max(...a);
-  $("#statsState").textContent=dataset.sourceStatus?.stats==="live"?"ESTADÍSTICAS EN LÍNEA":"ÚLTIMA INSTANTÁNEA";
+  $("#statsState").textContent=["live","cached-source"].includes(dataset.sourceStatus?.stats)?"FUENTE CONSULTADA":"ÚLTIMA COPIA";
   $("#heatmap").innerHTML=a.map((count,n)=>{const t=(count-min)/(max-min||1),opacity=(.1+.7*t).toFixed(3);return '<div class="heat" title="Bolilla '+fmt(n)+': '+count+' salidas" style="background:rgba(52,248,170,'+opacity+')"><b>'+fmt(n)+'</b><small>'+count+'</small></div>'}).join("");
   const top=a.map((count,n)=>({count,n})).sort((x,y)=>y.count-x.count).slice(0,8);
   $("#leaderboard").innerHTML=top.map((x,i)=>'<div class="ranking"><span>'+(i+1)+'</span><b>'+fmt(x.n)+'</b><i><b style="width:'+Math.round(100*x.count/max)+'%"></b></i><span>'+x.count+'</span></div>').join("");
 }
 function renderArchive(){
   const entries=dataset.archive||[], bt=dataset.backtest;
-  $("#archiveStatus").textContent=entries.length+" SORTEOS · "+(dataset.archiveMeta?.retrievedAt?"ARCHIVO EXTERNO":"SIN ARCHIVO");
+  $("#archiveStatus").textContent=entries.length+" SORTEOS · "+(dataset.archiveMeta?.coverageStart||"FECHA SIN DETERMINAR")+" → "+(dataset.archiveMeta?.coverageEnd||"ACTUALIDAD");
   $("#archiveProvenance").textContent="Fuente: "+(dataset.archiveMeta?.source||"sin fuente")+" · Capturado: "+(dataset.archiveMeta?.retrievedAt||"sin fecha")+" · Se muestran los últimos 10, sin inventar números de concurso.";
   $("#archiveRows").innerHTML=entries.length?entries.slice(0,10).map(d=>'<div class="archive-row"><b>'+d.date+'</b><span>'+d.tradicional.map(fmt).join(" · ")+'</span></div>').join(""):'<p class="muted">No hay archivo verificado.</p>';
   $("#backtestBox").innerHTML=bt&&bt.tests?[
@@ -48,14 +48,14 @@ function suggestion(kind){
 function generateSiempre(){
   siemprePick=suggestion("siempre");
   $("#pickSiempre").innerHTML=balls(siemprePick);
-  $("#explainSiempre").textContent="Siempre Sale · "+Math.min(dataset.archive?.length||dataset.history.length,100)+" sorteos analizados · "+strategy+".";
+  $("#explainSiempre").textContent="SIEMPRE SALE / "+strategy.toUpperCase()+" · últimos "+Math.min(dataset.archive?.length||dataset.history.length,100)+" sorteos.";
 }
 function generate(){
   pick=suggestion("normal");serial++;
   $("#serial").textContent="#"+String(serial).padStart(3,"0");
   $("#pick").innerHTML=balls(pick);
   const label={equilibrado:"Frecuencias ponderadas",frecuentes:"Salidas más frecuentes",rezagados:"Salidas menos frecuentes",aleatorio:"Azar sin ponderación"}[strategy];
-  $("#explain").textContent=label+" · "+mode+" · "+Math.min(dataset.archive?.length||dataset.history.length,100)+" sorteos.";
+  $("#explain").textContent=label+" · "+mode.toUpperCase()+" · última ventana: "+Math.min(dataset.archive?.length||dataset.history.length,100)+" sorteos.";
   generateSiempre();
 }
 function selectionUI(){
@@ -76,7 +76,7 @@ function compare(){
   }).join("");
 }
 async function load(){
-  $("#refresh").disabled=true;$("#refresh").textContent="↻ CONSULTANDO…";
+  $("#refresh").disabled=true;$("#refresh").textContent="↻ LEYENDO DATOS…";
   try {
     const response=await fetch("/api/data",{headers:{accept:"application/json"}});
     if(!response.ok)throw Error("HTTP "+response.status);
@@ -86,12 +86,12 @@ async function load(){
   } catch (err){console.warn("ORAQUI6 source unavailable:",err.message);dataset=fallback}
   renderResults();renderRadar();renderArchive();generate();
   const st=dataset.sourceStatus||{};
-  $("#sourceHealth").textContent="Sorteos: "+(st.draws==="live"?"online":"instantánea")+
-    " · Frecuencias: "+(st.stats==="live"?"online":"instantánea")+
-    " · Concursos validados: "+dataset.history.length+
-    " · Consultado: "+(dataset.checkedAt?new Date(dataset.checkedAt).toLocaleString("es-AR"):"sin conexión")+
+  $("#sourceHealth").textContent="Sorteos: "+(["live","cached-source"].includes(st.draws)?"fuente consultada":"copia guardada")+
+    " · Frecuencias: "+(["live","cached-source"].includes(st.stats)?"fuente consultada":"copia guardada")+
+    " · Archivo disponible: "+(dataset.archive?.length||0)+
+    " · Consultado: "+(dataset.checkedAt?new Date(dataset.checkedAt).toLocaleString("es-AR"):"sin consulta programada")+
     (dataset.warnings?.length?" · "+dataset.warnings.join("; "):"");
-  $("#refresh").disabled=false;$("#refresh").textContent="↻ SINCRONIZAR";
+  $("#refresh").disabled=false;$("#refresh").textContent="↻ ACTUALIZAR PANTALLA";
 }
 $$("[data-strategy]").forEach(b=>b.addEventListener("click",()=>{
   strategy=b.dataset.strategy;
@@ -116,8 +116,8 @@ $("#clear").addEventListener("click",()=>{selected.clear();selectionUI();$("#com
 $("#saved").addEventListener("click",e=>{const b=e.target.closest("[data-delete]");if(!b)return;const s=storage();s.splice(Number(b.dataset.delete),1);store(s);savedUI()});
 $("#export").addEventListener("click",()=>{
   const s=storage();if(!s.length){toast("No hay combinaciones para exportar");return}
-  const csv="fecha,estrategia,n1,n2,n3,n4,n5,n6\n"+s.map(x=>[x.createdAt||"",x.strategy||"",...x.nums.map(fmt)].join(",")).join("\n");
+  const csv="fecha,estrategia,modalidad,n1,n2,n3,n4,n5,n6\n"+s.map(x=>[x.createdAt||"",x.strategy||"",x.mode||"",...x.nums.map(fmt)].join(",")).join("\n");
   const u=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
   const a=document.createElement("a");a.href=u;a.download="oraqui6-combinaciones.csv";a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);
 });
-selectionUI();savedUI();load();
+generate();selectionUI();savedUI();load();

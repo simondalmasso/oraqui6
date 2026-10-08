@@ -2,23 +2,24 @@
 
 Terminal estadística del **Quini 6**, inspirada en [Smart Money Shell](https://smartmoney.sh/), con dos combinaciones sugeridas visibles en la portada: **Quini 6 normal** y **Siempre Sale**. Incluye mascota con tratamiento monocromático, resultados, radar, archivo y control de jugadas.
 
-**Sitio objetivo:** https://oraqui6.simondalmasso44.workers.dev/  
-**Infraestructura:** Cloudflare Worker + Assets estáticos, sin base de datos ni API de pago.
+**Producción:** https://oraqui6.simondalmasso44.workers.dev/  
+**Infraestructura:** Cloudflare Worker + Assets estáticos, con Cloudflare KV y dos sincronizaciones programadas por semana; no requiere una API de pago.
 
 ## Funcionalidades
 
 - **Último sorteo:** Tradicional, Segunda, Revancha y Siempre Sale, con fecha y fuente.
-- **Archivo documental:** 394 registros externos entre 2023 y octubre de 2026 con fecha y cuatro modalidades. No se inventan IDs faltantes.
+- **Archivo documental:** registros externos validados desde julio de 2010 hasta octubre de 2026 con fecha y cuatro modalidades. No se inventan IDs faltantes.
 - **Radar 46:** recuentos históricos independientes desde 2008, con fecha de corte explícita.
-- **Oráculo en portada:** dos sugerencias separadas de 6 números únicos. La primera utiliza Tradicional / Segunda / Revancha; la segunda utiliza Siempre Sale. Ambos muestran criterios equilibrado, frecuentes, rezagados o azar uniforme.\n- **Siempre Sale:** modalidad oficial que adjudica premios descendiendo el número de aciertos hasta encontrar ganadores; no es un sorteo independiente inventado.
+- **Oráculo en portada:** dos sugerencias separadas de 6 números únicos. La primera utiliza Tradicional / Segunda / Revancha; la segunda utiliza Siempre Sale. Ambos muestran criterios equilibrado, frecuentes, rezagados o azar uniforme.
+- **Siempre Sale:** modalidad oficial que adjudica premios descendiendo el número de aciertos hasta encontrar ganadores; no es un sorteo independiente inventado.
 - **Prueba retrospectiva:** walk-forward con ventana anterior de 60 sorteos, 120 pruebas como máximo y referencia uniforme de 36/46 ≈ 0,7826 aciertos por extracción.
 - **Control de jugadas:** comparación retrospectiva, colección local y descarga CSV.
 
-**Advertencia matemática:** existen exactamente \`C(46,6) = 9.366.819\` combinaciones. En cada extracción justa, todas conservan la misma probabilidad de 6/6. No existe un mecanismo demostrado para inferir cuál saldrá a partir de sus frecuencias anteriores. La prueba histórica no se debe ajustar usando información futura.
+**Advertencia matemática:** existen exactamente `C(46,6) = 9.366.819` combinaciones. En cada extracción justa, todas conservan la misma probabilidad de 6/6. No existe un mecanismo demostrado para inferir cuál saldrá a partir de sus frecuencias anteriores. La prueba histórica no se debe ajustar usando información futura.
 
 ## Árbol
 
-\`\`\`text
+```text
 .github/workflows/ci.yml  → test + build dry-run
 data/seed.json           → recortes verificables y fecha de corte
 public/
@@ -36,26 +37,36 @@ src/
 tests/math.test.js       → regresiones
 wrangler.jsonc           → única configuración de Cloudflare
 package.json
-\`\`\`
+```
 
-## Dirección visual\n\nPrimera pantalla = generador listo para usar; sin hero introductorio. Interfaz compacta tipo terminal (fondo negro, retícula, verde lima y cifras monoespaciadas). La mascota se adapta mediante filtros CSS sin alterar el recurso original. Sin promesas de IA ni de éxito estadístico.\n\n## Ejecutar
+## Sincronización y costos
+
+Un cron de Cloudflare corre **domingos y miércoles a las 23:15 (hora de Argentina)** (`15 2 * * 1,4`, UTC). En cada iteración consulta la página anual de resultados y el historial agregado, valida estructura y números, y guarda la instantánea en KV. Las visitas NO disparan scraping ni consultas a otras webs. Los archivos estáticos se sirven como assets. Esta frecuencia es deliberadamente baja: no equivale a transmisión del sorteo en vivo. Si una fuente todavía no publicó los resultados, el dato anterior permanece marcado por su fecha.
+
+El archivo importado es parcial y tiene fechas verificables; no afirmar que incluye todos los concursos desde 1988. La fuente oficial prevalece ante discrepancias. El script `node scripts/import-history.mjs 2009 2026` permite una nueva importación, fuera de producción.
+
+## Dirección visual
+
+Primera pantalla = generador listo para usar; sin hero introductorio. Interfaz compacta tipo terminal (fondo negro, retícula, verde lima y cifras monoespaciadas). La mascota es una ilustración vectorial SVG realizada a partir de la referencia del usuario; el original no se modifica. Sin promesas de IA ni de éxito estadístico.
+
+## Ejecutar
 
 Node 22+:
 
-\`\`\`bash
+```bash
 npm install
 npm run typecheck
 npm run check
 npm run dev
-\`\`\`
+```
 
 Deploy explícito, desde la cuenta Cloudflare autorizada:
 
-\`\`\`bash
+```bash
 npm run deploy
-\`\`\`
+```
 
-El CI solo comprueba y ejecuta un **dry-run**; no reemplaza un deploy real. Se valida producción leyendo \`/api/health\` y la home tras publicar. El Worker utiliza la cuenta Cloudflare \`b21fa81d12acb663798f9f7c51801955\`.
+El CI solo comprueba y ejecuta un **dry-run**; no reemplaza un deploy real. Se valida producción leyendo `/api/health` y la home tras publicar. El Worker utiliza la cuenta Cloudflare `b21fa81d12acb663798f9f7c51801955`.
 
 ## Datos y fuente de verdad
 
