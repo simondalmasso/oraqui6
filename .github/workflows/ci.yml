@@ -1,24 +1,18 @@
-name: ORAQUI6 checks
+name: ORAQUI6 CI
 on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
-permissions:
-  contents: read
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
-      - name: Check parser
-        run: node --test
-      - name: Validate static assets
-        run: |
-          test -s public/index.html
-          test -s public/data/history.json
-          node -e "const d=require('./public/data/history.json');if(!d.draws||d.draws.length<300)process.exit(1)"
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run check
+      - run: npx wrangler deploy --dry-run --outdir dist

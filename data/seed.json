@@ -1,0 +1,128 @@
+{
+  "snapshotDate": "2026-10-08",
+  "historySource": "https://www.quini-6-resultados.com.ar/quini6/sorteos-anteriores.aspx",
+  "statsSource": "https://www.quini-6-resultados.com.ar/quini6/quini6estadisticas.aspx",
+  "history": [
+    {
+      "id": 3415,
+      "date": "2026-10-07",
+      "tradicional": [
+        3,
+        10,
+        12,
+        14,
+        36,
+        38
+      ],
+      "segunda": [
+        5,
+        12,
+        13,
+        23,
+        24,
+        35
+      ],
+      "revancha": [
+        6,
+        7,
+        8,
+        39,
+        40,
+        41
+      ],
+      "siempre": [
+        4,
+        7,
+        19,
+        32,
+        34,
+        42
+      ]
+    },
+    {
+      "id": 3414,
+      "date": "2026-10-04",
+      "tradicional": [
+        11,
+        15,
+        21,
+        24,
+        27,
+        38
+      ],
+      "segunda": [
+        0,
+        10,
+        16,
+        23,
+        32,
+        37
+      ],
+      "revancha": [
+        14,
+        21,
+        29,
+        34,
+        42,
+        45
+      ],
+      "siempre": [
+        3,
+        5,
+        15,
+        19,
+        26,
+        44
+      ]
+    }
+  ],
+  "historicalCounts": [
+    1020,
+    1064,
+    1099,
+    980,
+    1033,
+    1019,
+    1081,
+    993,
+    1071,
+    1170,
+    1090,
+    1005,
+    1001,
+    984,
+    994,
+    1134,
+    1089,
+    1002,
+    980,
+    1224,
+    1131,
+    1015,
+    1151,
+    1006,
+    1204,
+    1002,
+    991,
+    988,
+    1106,
+    1076,
+    1021,
+    1108,
+    992,
+    1001,
+    1102,
+    1116,
+    1159,
+    1217,
+    992,
+    964,
+    1084,
+    1101,
+    1031,
+    1314,
+    1091,
+    1009
+  ],
+  "disclaimer": "Histórico de fuente independiente desde 2008, sin sorteos especiales navideños; los datos históricos agregados no permiten reconstruir todos los sorteos."
+}

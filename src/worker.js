@@ -1,94 +1,58 @@
-// ORAQUI6 — Cloudflare Workers API. Read-only allowlisted result ingestion.
-const SOURCE = "https://resultados-de-loteria.com/quini-6/resultados/";
-const MODES = ["Tradicional", "La Segunda", "Revancha", "Siempre Sale"];
-const good = a => Array.isArray(a) && a.length === 6 && new Set(a).size === 6 && a.every(n => Number.isInteger(n) && n >= 0 && n <= 45);
+import seed from "../data/seed.json";
+import { validDraw } from "./math.js";
+import { archiveEntries, parseDraw, parseHistoricalCounts, ARCHIVE_URL, STATS_URL } from "./parser.js";
 
-export function parseYear(html) {
-  const rows = [];
-  for (const tr of html.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi)) {
-    const body = tr[1];
-    const date = body.match(/\/quini-6\/resultados\/(\d{2})-(\d{2})-(\d{4})/i);
-    if (!date) continue;
-    const draws = [];
-    for (const ul of body.matchAll(/<ul\b[^>]*class=["']balls["'][^>]*>([\s\S]*?)<\/ul>/gi)) {
-      const numbers = Array.from(ul[1].matchAll(/<li\b[^>]*class=["']ball["'][^>]*>\s*(\d{1,2})\s*<\/li>/gi), m => Number(m[1])).sort((a,b) => a-b);
-      if (good(numbers)) draws.push(numbers);
-    }
-    if (draws.length === MODES.length) {
-      rows.push({date: date[3] + "-" + date[2] + "-" + date[1], draws});
-    }
-  }
-  return rows;
+const headers = { "content-type":"application/json; charset=utf-8", "cache-control":"public, max-age=900", "x-content-type-options":"nosniff" };
+async function externalText(url) {
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),6500);
+  try {
+    const r=await fetch(url,{signal:controller.signal,headers:{"accept":"text/html","user-agent":"ORAQUI6/0.1 (+independent statistical viewer)"}});
+    if(!r.ok)throw Error("Origen HTTP "+r.status);
+    const body=await r.text();
+    if(body.length>1200000)throw Error("Documento demasiado grande");
+    return body;
+  } finally { clearTimeout(timer); }
 }
-
-function uniqueSort(draws) {
-  return [...new Map(draws.filter(r => /^\d{4}-\d{2}-\d{2}$/.test(r.date) && Array.isArray(r.draws) && r.draws.length === 4 && r.draws.every(good)).map(r => [r.date, r])).values()].sort((a,b) => b.date.localeCompare(a.date));
+async function getDataset() {
+  let history=seed.history.filter(validDraw), historicalCounts=seed.historicalCounts;
+  let drawsStatus="snapshot", statsStatus="snapshot", drawError=null, statsError=null;
+  const [archive, stats]=await Promise.allSettled([externalText(ARCHIVE_URL),externalText(STATS_URL)]);
+  if (stats.status==="fulfilled") {
+    const parsed=parseHistoricalCounts(stats.value);
+    if(parsed){historicalCounts=parsed;statsStatus="live";}
+    else statsError="Estructura estadística no reconocida";
+  } else statsError="Origen de frecuencias no disponible";
+  if(archive.status==="fulfilled"){
+    const entries=archiveEntries(archive.value);
+    if(entries.length){
+      const fetched=await Promise.allSettled(entries.slice(0,12).map(async e=>parseDraw(await externalText(e.url),e)));
+      const valid=fetched.filter(x=>x.status==="fulfilled"&&x.value&&validDraw(x.value)).map(x=>x.value);
+      if(valid.length){
+        const unique=new Map([...valid,...history].map(x=>[x.id,x]));
+        history=[...unique.values()].sort((a,b)=>b.id-a.id).slice(0,20);
+        drawsStatus="live";
+      } else drawError="No se pudieron validar detalles de sorteos";
+    } else drawError="Archivo sin enlaces reconocibles";
+  } else drawError="Origen de sorteos no disponible";
+  return {history,historicalCounts,sourceStatus:{draws:drawsStatus,stats:statsStatus},checkedAt:new Date().toISOString(),snapshotDate:seed.snapshotDate,historyFrom:"2008",sources:{results:ARCHIVE_URL,stats:STATS_URL,official:"https://www.loteriasantafe.gov.ar/quini-6-2/"},warnings:[drawError,statsError].filter(Boolean),sampleDraws:history.length};
 }
-
-async function loadHistory(env, origin) {
-  const request = new Request(new URL("/data/history.json", origin).href);
-  const response = await env.ASSETS.fetch(request);
-  if (!response.ok) throw new Error("history asset unavailable");
-  const data = await response.json();
-  if (!Array.isArray(data.draws)) throw new Error("history schema invalid");
-  return data;
-}
-async function getLatest() {
-  const year = new Date().getUTCFullYear();
-  const endpoint = SOURCE + year;
-  const response = await fetch(endpoint, {
-    headers: {"Accept":"text/html","User-Agent":"ORAQUI6/1.0 historical-data research"},
-    signal: AbortSignal.timeout(6500),
-    cf: {cacheEverything:true,cacheTtl:900}
-  });
-  if (!response.ok) throw new Error("source status " + response.status);
-  const html = await response.text();
-  if (html.length > 1500000) throw new Error("source too large");
-  const parsed = parseYear(html);
-  if (!parsed.length) throw new Error("no validated rows");
-  return {parsed,endpoint};
-}
-
 export default {
-  async fetch(request, env, ctx) {
-    const url = new URL(request.url);
-    if (url.pathname === "/api/health") {
-      return Response.json({ok:true,service:"oraqui6",version:"1.0.0"},{headers:{"Cache-Control":"no-store"}});
+  async fetch(request,env,ctx) {
+    const url=new URL(request.url);
+    if(url.pathname==="/api/health")
+      return new Response(JSON.stringify({ok:true,service:"oraqui6",version:"0.1.0",timestamp:new Date().toISOString()}),{headers:{"content-type":"application/json; charset=utf-8","cache-control":"no-store"}});
+    if(url.pathname==="/api/data"){
+      const cacheKey=new Request(url.origin+"/api/data");
+      const cache=typeof caches!=="undefined"?caches.default:null;
+      const cached=cache?await cache.match(cacheKey):null;
+      if(cached)return cached;
+      const dataset=await getDataset().catch(()=>({history:seed.history,historicalCounts:seed.historicalCounts,sourceStatus:{draws:"snapshot",stats:"snapshot"},checkedAt:new Date().toISOString(),snapshotDate:seed.snapshotDate,historyFrom:"2008",warnings:["Fuentes inaccesibles; mostrando instantánea verificada."],sampleDraws:seed.history.length}));
+      const response=new Response(JSON.stringify(dataset),{headers});
+      if(cache&&ctx?.waitUntil)ctx.waitUntil(cache.put(cacheKey,response.clone()));
+      return response;
     }
-    if (url.pathname !== "/api/history") {
-      return env.ASSETS.fetch(request);
-    }
-    if (request.method !== "GET") return new Response("Method Not Allowed",{status:405,headers:{Allow:"GET"}});
-    const cache = caches.default;
-    const key = new Request(url.origin + "/api/history");
-    const hit = await cache.match(key);
-    if (hit) return hit;
-    let history;
-    try { history = await loadHistory(env,url.origin); }
-    catch (e) { return Response.json({error:"Historical data unavailable"},{status:503}); }
-    const baseline = uniqueSort(history.draws);
-    let updated = [];
-    let status = "archivo";
-    let source = history.source;
-    try {
-      const live = await getLatest();
-      if (live.parsed[0].date >= (baseline[0]?.date || "")) {
-        updated = live.parsed;
-        status = "actualizado";
-        source = live.endpoint;
-      }
-    } catch (_) { /* validated local snapshot, explicitly marked as archive */ }
-    const merged = uniqueSort([...updated,...baseline]);
-    const body = {
-      schema:1, mode:status, source, archiveSource:history.source,
-      archiveRetrievedAt:history.retrievedAt, checkedAt:new Date().toISOString(),
-      total:merged.length, draws:merged
-    };
-    const response = Response.json(body,{headers: {
-      "Cache-Control":"public, max-age=300, s-maxage=600",
-      "X-Content-Type-Options":"nosniff"
-    }});
-    ctx.waitUntil(cache.put(key,response.clone()));
-    return response;
+    if(url.pathname.startsWith("/api/"))return new Response(JSON.stringify({error:"Not found"}),{status:404,headers});
+    return env.ASSETS.fetch(request);
   }
 };
