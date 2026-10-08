@@ -1,6 +1,6 @@
 # ORAQUI6 · Números sugeridos para Quini 6
 
-Terminal estadística del **Quini 6**, inspirada en [Smart Money Shell](https://smartmoney.sh/), con dos combinaciones sugeridas visibles en la portada: **Quini 6 normal** y **Siempre Sale**. Incluye una mascota SVG topológica, resultados, radar, archivo y control de jugadas.
+Terminal estadística del **Quini 6**, inspirada en [Smart Money Shell](https://smartmoney.sh/), con dos combinaciones sugeridas visibles en la portada: **Quini 6 normal** y **Siempre Sale**. Incluye una mascota robótica PNG transparente optimizada, resultados, radar, archivo y control de jugadas.
 
 **Producción:** https://oraqui6.simondalmasso44.workers.dev/  
 **Infraestructura:** Cloudflare Worker + Assets estáticos, con Cloudflare KV y sincronización oportunista después de los sorteos; sin cron adicional ni API de pago.
@@ -27,7 +27,8 @@ public/
   style.css              → UI
   app.js                 → interfaz e interacciones
   math-browser.js        → motor matemático en navegador
-  mascota-topologica.svg → mascota vectorial en estilo terminal
+  mascota-robot.png       → mascota robótica proporcionada por el usuario, optimizada a 290 px (PNG con transparencia)
+  mascota-topologica.svg → alternativa vectorial conservada
   mascota.webp           → recurso original de referencia conservado
   data/history.json      → archivo parcial de 1.668 sorteos (2010—2026)
 src/
@@ -51,7 +52,7 @@ El archivo importado es parcial y tiene fechas verificables; no afirmar que incl
 
 ## Dirección visual
 
-Primera pantalla = dos combinaciones y controles de generación, sin hero introductorio. Interfaz compacta tipo terminal (fondo negro, retícula, verde lima y cifras monoespaciadas). La mascota es una ilustración vectorial SVG realizada a partir de la referencia del usuario; el original no se modifica. Sin promesas de IA ni de éxito estadístico.
+Primera pantalla = dos combinaciones y controles de generación, sin hero introductorio. Interfaz compacta tipo terminal (fondo negro, retícula, verde lima y cifras monoespaciadas). La mascota visible es una versión PNG con fondo transparente de la imagen proporcionada por el usuario; el SVG anterior se conserva como recurso alternativo. Sin promesas de IA ni de éxito estadístico.
 
 ## Ejecutar
 
@@ -95,3 +96,7 @@ Diseño Mobile First a partir de 320 px: barra inferior con cinco destinos, sele
 - `GET /api/health`: versión `0.4.1`.
 - Archivo: **1.668 registros, 2010-07-11 a 2026-10-07** en el corte de implementación. No certifica completitud desde 1988.
 - La validación responsive automatizada es estática; no reemplaza una inspección visual de dispositivos reales.
+
+### Ajuste de mascota
+
+El personaje se muestra a escala contenida, máximo 156 px de ancho en escritorio y 78 px en la barra compacta móvil. Se almacena localmente en `public/mascota-robot.png` (aprox. 69 KB), sin recursos remotos ni nuevas llamadas a Cloudflare fuera del tráfico normal de assets.

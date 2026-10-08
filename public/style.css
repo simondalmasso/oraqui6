@@ -55,7 +55,7 @@ button:disabled{cursor:not-allowed;opacity:.44}
 .odds{border-left:3px solid var(--mint);padding:5px 11px;min-width:215px;color:var(--secondary);font-size:10px}
 .odds b{display:block;font-size:24px;color:var(--mint);letter-spacing:-.03em;line-height:1.4}
 .odds small{font-size:9px;color:#8d9f85}
-.stage-grid{display:grid;grid-template-columns:minmax(0,1fr) 226px;gap:7px}
+.stage-grid{display:grid;grid-template-columns:minmax(0,1fr) 172px;gap:7px}
 .stage-main,.mascot-shell{background:var(--panel);border:1px solid var(--line);min-width:0}
 .cmdbar{background:var(--bar);color:var(--mint-hi);border-bottom:1px solid #158562;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 10px;font-size:10px;font-weight:800}
 .cmdbar span:last-child{color:#c2e3d2}
@@ -89,11 +89,11 @@ button:disabled{cursor:not-allowed;opacity:.44}
 .modes .tabs button{font-size:10px;min-height:33px}
 .shortnote{margin:0;padding:8px 10px;border-top:1px solid var(--line-soft);font-size:10px;line-height:1.5;color:#8cac95}
 .mascot-shell{display:flex;flex-direction:column;min-width:0}
-.mascot-canvas{display:grid;place-items:center;position:relative;flex:1;min-height:259px;isolation:isolate;overflow:hidden;background:radial-gradient(ellipse,#0d3022 0%,#010807 70%)}
+.mascot-canvas{display:grid;place-items:center;position:relative;flex:1;min-height:188px;isolation:isolate;overflow:hidden;background:radial-gradient(ellipse,#0d3022 0%,#010807 70%)}
 .mascot-canvas:before{content:"";position:absolute;inset:10px;background-image:linear-gradient(#12785844 1px,transparent 1px),linear-gradient(90deg,#12785844 1px,transparent 1px);background-size:15px 15px}
 .mascot-canvas:after{content:"┌ TRACE:46 ┐";position:absolute;left:11px;top:10px;color:var(--mint);font-size:10px}
 .mascot-canvas i{display:none}
-.mascot-canvas img{position:relative;display:block;width:100%;max-width:234px;max-height:265px;object-fit:contain;filter:drop-shadow(0 0 12px #17f4a766)}
+.mascot-canvas img{position:relative;display:block;width:min(90%,156px);height:auto;max-height:127px;object-fit:contain;filter:drop-shadow(0 0 8px #17f4a766)}
 .mascot-caption{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--mint);font-size:10px;border-top:1px solid var(--line);padding:7px 9px}
 .meters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin:10px 0;border:1px solid var(--line);background:#03170e;min-width:0}
 .meters>div{display:flex;flex-direction:column;gap:3px;border-right:1px solid var(--line);padding:8px 11px;min-width:0}
@@ -155,14 +155,14 @@ footer b{color:var(--mint)}
 @media (max-width:1100px){
   .nav{gap:8px}
   .nav nav a{font-size:10px;padding:6px}
-  .stage-grid{grid-template-columns:minmax(0,1fr) 190px}
-  .mascot-canvas{min-height:252px}
+  .stage-grid{grid-template-columns:minmax(0,1fr) 160px}
+  .mascot-canvas{min-height:181px}
   .selection-card .ballline.big .ball{font-size:clamp(15px,2vw,21px)}
   .result{grid-template-columns:130px minmax(0,1fr) 114px}
 }
 @media (max-width:900px){
-  .stage-grid{grid-template-columns:minmax(0,1fr) 150px}
-  .mascot-canvas{min-height:250px}
+  .stage-grid{grid-template-columns:minmax(0,1fr) 142px}
+  .mascot-canvas{min-height:172px}
   .mascot-caption{font-size:9px}
   .stage-top h1{font-size:30px}
   .radar-layout{grid-template-columns:minmax(0,1fr)}
@@ -204,9 +204,9 @@ footer b{color:var(--mint)}
   .modes .tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
   .modes .tabs button{width:100%;min-width:0;min-height:44px;padding:7px 2px;font-size:10px}
   .shortnote{font-size:10px}
-  .mascot-shell{display:grid;grid-template-columns:112px minmax(0,1fr);grid-template-rows:1fr 1fr;min-height:95px}
-  .mascot-canvas{grid-column:1;grid-row:1 / 3;min-height:95px;border-right:1px solid var(--line)}
-  .mascot-canvas img{max-width:103px;max-height:100px}
+  .mascot-shell{display:grid;grid-template-columns:90px minmax(0,1fr);grid-template-rows:1fr 1fr;min-height:86px}
+  .mascot-canvas{grid-column:1;grid-row:1 / 3;min-height:86px;border-right:1px solid var(--line)}
+  .mascot-canvas img{max-width:78px;max-height:61px}
   .mascot-canvas:after{font-size:7px;left:4px;top:3px}
   .mascot-canvas:before{inset:3px}
   .mascot-shell>.cmdbar{grid-column:2;grid-row:1;margin:0;border-bottom:1px solid var(--line);font-size:10px}
