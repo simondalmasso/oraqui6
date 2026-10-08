@@ -1,6 +1,6 @@
 {
   "name": "oraqui6",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "private": true,
   "type": "module",
   "description": "ORAQUI6 — Quini 6 normal y Siempre Sale, estadísticas históricas y números sugeridos",
@@ -8,7 +8,7 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "check": "node --test tests/*.test.js",
-    "typecheck": "node --check src/worker.js && node --check src/math.js && node --check src/archive.js && node --check src/parser.js && node --check src/year-source.js && node --check public/app.js && node --check public/math-browser.js",
+    "typecheck": "node --check src/worker.js && node --check src/math.js && node --check src/archive.js && node --check src/parser.js && node --check src/year-source.js && node --check public/app.js && node --check public/math-browser.js && node --check src/sync-window.js",
     "import:history": "node scripts/import-history.mjs 2009 2026"
   },
   "devDependencies": {

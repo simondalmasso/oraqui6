@@ -5,9 +5,10 @@ import {parseHistoricalCounts,STATS_URL} from "./parser.js";
 import {parseYear,YEAR_SITE} from "./year-source.js";
 const baseline=archiveRecords();
 const backtest=walkForward(baseline,{mode:"tradicional",window:60,maxTests:120});
-const VERSION="0.4.0";
+const VERSION="0.4.1";
 const HEADER={"content-type":"application/json; charset=utf-8","cache-control":"public, max-age=120","x-content-type-options":"nosniff"};
 const SYNC_KEY="snapshot.v1";
+import {latestResultWindow} from "./sync-window.js";
 async function externalText(url){
  const ctrl=new AbortController(),timeout=setTimeout(()=>ctrl.abort(),6500);
  try{
@@ -66,7 +67,7 @@ function buildData(state){
   version:VERSION,history,archive,archiveMeta:{...ARCHIVE_META,coverageStart:archive.at(-1)?.date,coverageEnd:archive[0]?.date,records:archive.length},
   backtest,historicalCounts,statsSnapshotDate:goodCounts?state.statsCheckedAt:seed.statsSnapshotDate,
   checkedAt:state?.checkedAt??null,lastResultDate:archive[0]?.date??null,refreshAgeMinutes:age,
-  refreshMethod:"scheduled-after-draw",snapshotDate:seed.snapshotDate,
+  refreshMethod:"on-demand-after-draw",snapshotDate:seed.snapshotDate,
   sourceStatus:{draws:state?.drawsCheckedAt?"cached-source":"snapshot",stats:state?.statsCheckedAt?"cached-source":"snapshot"},
   sources:{results:state?.drawsSource||YEAR_SITE+new Date().getUTCFullYear(),stats:STATS_URL,official:"https://www.loteriasantafe.gov.ar/quini-6-2/"},
   warnings:state?.warnings||["Fuentes todavía no verificadas; utilizando la instantánea"],sampleDraws:history.length
@@ -76,15 +77,31 @@ export default {
  async fetch(request,env,ctx){
   const url=new URL(request.url);
   if(url.pathname==="/api/health"){
-   return new Response(JSON.stringify({ok:true,service:"oraqui6",version:VERSION,timestamp:new Date().toISOString(),sync:"sun-wed-23:15-AR"}),{headers:{"content-type":"application/json; charset=utf-8","cache-control":"no-store"}});
+   return new Response(JSON.stringify({ok:true,service:"oraqui6",version:VERSION,timestamp:new Date().toISOString(),sync:"post-draw-on-demand"}),{headers:{"content-type":"application/json; charset=utf-8","cache-control":"no-store"}});
   }
   if(url.pathname==="/api/data"){
    let state=null;
-   if(env.ORAQUI6_SYNC)state=await env.ORAQUI6_SYNC.get(SYNC_KEY,"json").catch(()=>null);
+   const kv=env.ORAQUI6_SYNC;
+   if(kv){
+     state=await kv.get(SYNC_KEY,"json").catch(()=>null);
+     const window=latestResultWindow(Date.now());
+     // Sólo intentar tras la última ventana del sorteo; sin cron ni scraping por visita.
+     if(window && (!state?.checkedAt || Date.parse(state.checkedAt)<Date.parse(window))){
+       const key="checked-window-"+window.slice(0,10);
+       const checked=await kv.get(key).catch(()=>null);
+       if(!checked && ctx?.waitUntil){
+         ctx.waitUntil((async()=>{
+           await kv.put(key,"1",{expirationTtl:604800});
+           await sync(env);
+         })().catch(()=>{}));
+       }
+     }
+   }
    return new Response(JSON.stringify(buildData(state)),{headers:HEADER});
   }
   if(url.pathname.startsWith("/api/"))return new Response('{"error":"not_found"}',{status:404,headers:HEADER});
   return env.ASSETS.fetch(request);
  },
- async scheduled(event,env,ctx){ctx.waitUntil(sync(env))}
+ // No cron triggers: el próximo acceso después de cada sorteo activa como máximo
+ // una consulta a fuentes, con marcador temporal de KV.
 };

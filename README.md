@@ -41,7 +41,7 @@ package.json
 
 ## Sincronización y costos
 
-Un cron de Cloudflare corre **domingos y miércoles a las 23:15 (hora de Argentina)** (`15 2 * * 1,4`, UTC). En cada iteración consulta la página anual de resultados y el historial agregado, valida estructura y números, y guarda la instantánea en KV. Las visitas NO disparan scraping ni consultas a otras webs. Los archivos estáticos se sirven como assets. Esta frecuencia es deliberadamente baja: no equivale a transmisión del sorteo en vivo. Si una fuente todavía no publicó los resultados, el dato anterior permanece marcado por su fecha.
+No se crean disparadores cron adicionales en Cloudflare. La cuenta Free ya tiene ocupados sus cinco cron. El primer acceso posterior a las ventanas de sorteos habituales (domingo y miércoles 23:15 hora argentina) puede activar una consulta asíncrona, registrada mediante un marcador temporal en KV para evitar repeticiones. Las visitas posteriores sólo leen datos almacenados y NO disparan scraping. Las dos fuentes independientes se consultan únicamente cuando aparece una nueva ventana; el proceso es de esfuerzo razonable, sin garantía de cobertura en vivo ni bloqueo perfecto contra accesos simultáneos. Si la fuente todavía no publicó un sorteo, la copia anterior permanece identificada por su fecha.
 
 El archivo importado es parcial y tiene fechas verificables; no afirmar que incluye todos los concursos desde 1988. La fuente oficial prevalece ante discrepancias. El script `node scripts/import-history.mjs 2009 2026` permite una nueva importación, fuera de producción.
 
@@ -66,7 +66,7 @@ Deploy explícito, desde la cuenta Cloudflare autorizada:
 npm run deploy
 ```
 
-El CI solo comprueba y ejecuta un **dry-run**; no reemplaza un deploy real. Se valida producción leyendo `/api/health` y la home tras publicar. El Worker utiliza la cuenta Cloudflare `b21fa81d12acb663798f9f7c51801955`.
+La publicación real se realiza mediante el Worker de Cloudflare y se comprueba por `/api/health`. GitHub Actions ejecuta pruebas y dry-run, pero no publica automáticamente. Se valida producción leyendo `/api/health` y la home tras publicar. El Worker utiliza la cuenta Cloudflare `b21fa81d12acb663798f9f7c51801955`.
 
 ## Datos y fuente de verdad
 
