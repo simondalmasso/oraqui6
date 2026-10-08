@@ -1,1 +1,26 @@
-²ø1šYì
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 390" role="img" aria-labelledby="title">
+<title id="title">Mascota topolÃ³gica ORAQUI6</title>
+<defs><linearGradient id="n"><stop stop-color="#00fbb5"/><stop offset=".5" stop-color="#70daef"/><stop offset="1" stop-color="#b9ff76"/></linearGradient><radialGradient id="s"><stop stop-color="#0efabb" stop-opacity=".3"/><stop offset="1" stop-color="#0efabb" stop-opacity=".01"/></radialGradient></defs>
+<g stroke="url(#n)" fill="none" stroke-linejoin="round" stroke-linecap="round">
+<circle cx="81" cy="112" r="77" fill="url(#s)" stroke-width="3"/><ellipse cx="81" cy="112" rx="31" ry="77"/><ellipse cx="81" cy="112" rx="68" ry="29" transform="rotate(-20 81 112)"/><circle cx="81" cy="112" r="65" opacity=".55"/><path d="M20 91q60-35 123 24M27 145q60-58 111-43M41 46q26 115 78 130" opacity=".6"/>
+<g fill="#adffe8" stroke="none" font-family="monospace" font-weight="bold" text-anchor="middle" font-size="20"><text x="72" y="78">06</text><text x="121" y="109">15</text><text x="54" y="140">27</text><text x="106" y="166">43</text></g>
+<path d="M161 189Q91 213 64 189L38 163M64 189q-17 33-40 25M60 193q-18 32-39 16M69 181q-8 28-3 42" stroke-width="3"/>
+<path d="M297 174q68 17 86 68l37-18 16 17-51 50q-27 1-50-42l4 99-83 5-11-100" stroke-width="3.3"/>
+<path d="M419 227q22-13 19 0l-20 14 18 5q7 5-5 8l-20 2 18 10q2 8-11 4l-25-14 8 15q0 8-9 2l-27-25" stroke-width="2.4"/>
+<path d="M174 189q-28 28-30 75l-25 77 89 10 37-101 34 102 72-9-23-112" stroke-width="3.2"/>
+<path d="M163 205q-23 67-10 118l43 9M185 221q-4 61 7 92M308 228q20 55 28 109M280 250l5 97M334 210q7 76-1 124" opacity=".6"/>
+<path d="M180 173l-27 45q17 38 45 43l29-44 29 55 27-13q27-21 46-49l-31-39" stroke-width="3"/>
+<path d="M181 73q7-53 65-56 67 0 76 58l2 34q-9 72-82 92-59-5-80-60z" fill="#092921" fill-opacity=".75" stroke-width="3.5"/>
+<path d="M197 49q48-28 96 0l-12 15q-39-15-69 0Z" fill="#152719" stroke="#eec979" stroke-width="3"/>
+<circle cx="247" cy="48" r="13" fill="#28142b" stroke="#e2a2ff" stroke-width="3"/><circle cx="247" cy="48" r="6" stroke="#f9d6a4"/>
+<path d="M218 23q-18-19-31-10M294 21q17-20 30-10" stroke-width="3"/>
+<ellipse cx="216" cy="101" rx="31" ry="33" fill="#061b1a" stroke="#e5fffb" stroke-width="3.5"/><ellipse cx="277" cy="101" rx="31" ry="33" fill="#061b1a" stroke="#e5fffb" stroke-width="3.5"/>
+<circle cx="216" cy="106" r="17" fill="#096573" stroke="#70eafd" stroke-width="2.5"/><circle cx="277" cy="106" r="17" fill="#096573" stroke="#70eafd" stroke-width="2.5"/>
+<circle cx="216" cy="106" r="7" fill="#020c08"/><circle cx="277" cy="106" r="7" fill="#020c08"/><circle cx="210" cy="98" r="4" fill="#ffffff" stroke="none"/><circle cx="270" cy="98" r="4" fill="#ffffff" stroke="none"/>
+<ellipse cx="246" cy="139" rx="18" ry="15" fill="#8f2443" stroke="#ffaaa2" stroke-width="2.5"/>
+<path d="M197 154q45 68 101-3-51 16-101 3Z" fill="#010805" stroke="#22e8aa" stroke-width="3"/><path d="M217 160q30 8 65-2" stroke="#ffecc6" stroke-width="4"/><path d="M230 180q17-10 32 1" stroke="#e798ae"/>
+<circle cx="248" cy="244" r="41" fill="#081b11" stroke="#eccb70" stroke-width="3.5"/><circle cx="248" cy="244" r="33" stroke="#bed47c" stroke-width="1.5" stroke-dasharray="2 3"/>
+<text x="248" y="261" fill="#c1ff8b" stroke="none" font-family="monospace" font-size="53" font-weight="bold" text-anchor="middle">6</text>
+<path d="M177 342q-6 9-35 10-18 5-22 20h95l15-29M281 347l12 25h82q-3-21-27-23l-22-14" stroke-width="3.2"/><path d="M140 364h68M297 365h64M150 356l26 10M171 353l23 14M308 357l26 10"/>
+<path d="M4 194h16m401 0h15M224 2v16M224 371v16" stroke="#28edb8" opacity=".6"/>
+</g></svg>
