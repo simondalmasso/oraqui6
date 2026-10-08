@@ -11,6 +11,17 @@
       "/api/*"
     ]
   },
+  "kv_namespaces": [
+    {
+      "binding": "ORAQUI6_SYNC",
+      "id": "3ea4b311af2c4d8faed8a80eca91ec4a"
+    }
+  ],
+  "triggers": {
+    "crons": [
+      "15 2 * * 1,4"
+    ]
+  },
   "observability": {
     "enabled": true
   }

@@ -1,0 +1,12 @@
+import {readFile,writeFile} from "node:fs/promises";
+const path="wrangler.jsonc";
+const config=JSON.parse(await readFile(path,"utf8"));
+config.triggers={crons:["15 2 * * 1,4"]};
+await writeFile(path,JSON.stringify(config,null,2)+"\n");
+const f="src/worker.js";let worker=await readFile(f,"utf8");
+worker=worker.replace('const SYNC_KEY="snapshot.v1", INTERVAL=15*60*1000;','const SYNC_KEY="snapshot.v1";');
+worker=worker.replace(/\n   \/\/ Si el cron se detuvo,[\s\S]*?\n   return new Response\(JSON\.stringify\(buildData\(state\)\),\{headers:HEADER\}\);/, '\n   return new Response(JSON.stringify(buildData(state)),{headers:HEADER});');
+worker=worker.replace('refreshMethod:"scheduled-15-minutes"','refreshMethod:"scheduled-after-draw"');
+worker=worker.replace('sync:"15m"','sync:"sun-wed-23:15-AR"');
+await writeFile(f,worker);
+console.log("CRON",config.triggers.crons[0],"NO_VIEW_SIDE_SYNC",!worker.includes('waitUntil?.(sync'),"VERSION",worker.match(/VERSION="(.*?)"/)?.[1]);
