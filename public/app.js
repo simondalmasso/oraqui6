@@ -17,6 +17,8 @@ function renderResults(){
   $("#status").textContent=live?"● RESULTADOS ACTUALIZADOS":"● ARCHIVO LOCAL";
   $("#sourceLine").textContent=(d.id!=null?"CONCURSO "+d.id:"SORTEO")+" · "+d.date+" · "+(live?"DATOS PUBLICADOS":"COPIA GUARDADA");
   $("#metricArchive").textContent=(dataset.archive?.length||0).toLocaleString("es-AR");
+  $("#feedCount").textContent=(dataset.archive?.length||0).toLocaleString("es-AR");
+  $("#feedLatest").textContent=d.date;
   $("#results").innerHTML=MODES.map(k=>'<article class="result"><h3>'+NAMES[k]+'</h3><div class="ballline">'+balls(d[k])+'</div><small>'+(d.id!=null?'#'+d.id+' · ':'')+'SEIS NÚMEROS</small></article>').join("");
 }
 function renderRadar(){
@@ -120,4 +122,14 @@ $("#export").addEventListener("click",()=>{
   const u=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
   const a=document.createElement("a");a.href=u;a.download="oraqui6-combinaciones.csv";a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);
 });
-generate();selectionUI();savedUI();load();
+generate();// Dock activo según la sección, sin librerías ni solicitudes de red.
+function activateDock(){
+  const id=location.hash.slice(1)||"oraculo";
+  $(".mobile-dock [data-nav]").forEach(link=>{
+    if(link.dataset.nav===id)link.setAttribute("aria-current","location");
+    else link.removeAttribute("aria-current");
+  });
+}
+globalThis.addEventListener("hashchange",activateDock);
+activateDock();
+selectionUI();savedUI();load();

@@ -47,7 +47,7 @@ El archivo importado es parcial y tiene fechas verificables; no afirmar que incl
 
 ## Dirección visual
 
-Primera pantalla = generador listo para usar; sin hero introductorio. Interfaz compacta tipo terminal (fondo negro, retícula, verde lima y cifras monoespaciadas). La mascota es una ilustración vectorial SVG realizada a partir de la referencia del usuario; el original no se modifica. Sin promesas de IA ni de éxito estadístico.
+Primera pantalla = dos combinaciones y controles de generación, sin hero introductorio. Interfaz compacta tipo terminal (fondo negro, retícula, verde lima y cifras monoespaciadas). La mascota es una ilustración vectorial SVG realizada a partir de la referencia del usuario; el original no se modifica. Sin promesas de IA ni de éxito estadístico.
 
 ## Ejecutar
 
@@ -79,3 +79,7 @@ La publicación real se realiza mediante el Worker de Cloudflare y se comprueba 
 Los datos externos son informativos; ante discrepancias prevalece la fuente oficial. Las solicitudes externas pueden fallar: la aplicación muestra entonces una instantánea y comunica el origen. **No afirmar histórico completo desde 1988**: existen diferentes ventanas y modalidades.
 
 No afiliado a la Lotería de Santa Fe. Jugar compulsivamente es perjudicial para la salud. Solo mayores de 18 años.
+
+## Responsive / terminal
+
+Diseño Mobile First a partir de 320 px: barra inferior con cinco destinos, selector de estrategias 2×2 en celulares angostos, números de seis columnas sin desbordes horizontales, controles táctiles de al menos 44 px, tabla de resultados reorganizada y mascota topológica compacta visible también en móvil. Modo escritorio: encabezado FEED, bandas de datos, filas densas, tipografía monoespaciada y separación cromática por modalidad. No se descargan fuentes externas ni recursos de interfaz de terceros. Los datos siguen usando el mecanismo de KV de bajo consumo ya desplegado.
