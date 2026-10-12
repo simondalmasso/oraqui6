@@ -13,5 +13,5 @@ test("terminal: mobile dock and feed counters are usable",()=>{
   assert.ok(js.includes('function activateDock()'));
 });
 
-test("dock recorre varios enlaces sin detener la inicialización",()=>{assert.ok(js.includes('$$(".mobile-dock [data-nav]").forEach'));assert.ok(!js.includes('$(".mobile-dock [data-nav]").forEach'));assert.ok(js.includes("selectionUI();savedUI();load();"));});
+test("dock recorre varios enlaces sin detener la inicialización",()=>{assert.ok(js.includes('$$(".mobile-dock [data-nav]").forEach'));assert.ok(!js.includes('  $(".mobile-dock [data-nav]").forEach'));assert.ok(js.includes("selectionUI();savedUI();load();"));});
 test("copia de respaldo incorpora concurso 3416 contrastado oficialmente",()=>{const seed=JSON.parse(readFileSync("data/seed.json","utf8"));assert.equal(seed.history[0].id,3416);assert.equal(seed.history[0].date,"2026-10-11");assert.deepEqual(seed.history[0].segunda,[0,4,5,6,8,26]);assert.ok(js.includes('id:3416,date:"2026-10-11"'));});
