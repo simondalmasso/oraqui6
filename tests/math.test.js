@@ -14,9 +14,9 @@ test("validación estricta de 6 números",()=>{
 });
 test("frecuencia por modalidad",()=>{
   const f=frequencies(seed.history,"tradicional");
-  assert.equal(f.reduce((a,b)=>a+b,0),12);
+  assert.equal(f.reduce((a,b)=>a+b,0),6*seed.history.length);
   assert.equal(f[38],2);
-  assert.equal(frequencies(seed.history,"todas").reduce((a,b)=>a+b,0),48);
+  assert.equal(frequencies(seed.history,"todas").reduce((a,b)=>a+b,0),24*seed.history.length);
 });
 test("pesos y 6 únicas para cada estrategia",()=>{
   for(const strategy of ["equilibrado","frecuentes","rezagados","aleatorio"]){
