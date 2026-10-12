@@ -1,6 +1,6 @@
 import {MODES, STRATEGIES, weights, sampleSix, secureRandom, validDraw, fmt} from "/math-browser.js";
 const fallback={
-archive:[],archiveMeta:null,backtest:null,history:[{id:3415,date:"2026-10-07",tradicional:[3,10,12,14,36,38],segunda:[5,12,13,23,24,35],revancha:[6,7,8,39,40,41],siempre:[4,7,19,32,34,42]}],
+archive:[],archiveMeta:null,backtest:null,history:[{id:3416,date:"2026-10-11",tradicional:[13,14,15,18,20,29],segunda:[0,4,5,6,8,26],revancha:[0,1,6,27,42,45],siempre:[2,3,11,13,37,45]}],
 historicalCounts:[],sourceStatus:{draws:"snapshot",stats:"snapshot"},snapshotDate:"2026-10-08",sampleDraws:1,warnings:["No se pudo contactar con el servidor"]
 };
 const NAMES={tradicional:"TRADICIONAL",segunda:"LA SEGUNDA",revancha:"REVANCHA",siempre:"SIEMPRE SALE"};
@@ -122,10 +122,11 @@ $("#export").addEventListener("click",()=>{
   const u=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
   const a=document.createElement("a");a.href=u;a.download="oraqui6-combinaciones.csv";a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);
 });
-generate();// Dock activo según la sección, sin librerías ni solicitudes de red.
+generate();
+// Dock activo según la sección, sin librerías ni solicitudes de red.
 function activateDock(){
   const id=location.hash.slice(1)||"oraculo";
-  $(".mobile-dock [data-nav]").forEach(link=>{
+  $$(".mobile-dock [data-nav]").forEach(link=>{
     if(link.dataset.nav===id)link.setAttribute("aria-current","location");
     else link.removeAttribute("aria-current");
   });

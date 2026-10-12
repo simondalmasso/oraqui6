@@ -1,8 +1,44 @@
 {
-  "snapshotDate": "2026-10-08",
-  "historySource": "https://www.quini-6-resultados.com.ar/quini6/sorteos-anteriores.aspx",
+  "snapshotDate": "2026-10-12",
+  "historySource": "https://www.loteriasantafe.gov.ar/dos-apostadores-se-repartieron-mas-de-5-300-millones-en-el-quini-6/",
   "statsSource": "https://www.quini-6-resultados.com.ar/quini6/quini6estadisticas.aspx",
   "history": [
+    {
+      "id": 3416,
+      "date": "2026-10-11",
+      "tradicional": [
+        13,
+        14,
+        15,
+        18,
+        20,
+        29
+      ],
+      "segunda": [
+        0,
+        4,
+        5,
+        6,
+        8,
+        26
+      ],
+      "revancha": [
+        0,
+        1,
+        6,
+        27,
+        42,
+        45
+      ],
+      "siempre": [
+        2,
+        3,
+        11,
+        13,
+        37,
+        45
+      ]
+    },
     {
       "id": 3415,
       "date": "2026-10-07",
